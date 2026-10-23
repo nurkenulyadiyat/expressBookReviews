@@ -10,7 +10,7 @@ const isValid = (username) => !users.some(user => user.username === username);
 const authenticatedUser = (username, password) =>
   users.some(user => user.username === username && user.password === password);
 
-regd_users.post("/login", (req, res) => {
+function loginUser(req, res) {
   const { username, password } = req.body;
 
   if (!username || !password || !authenticatedUser(username, password)) {
@@ -19,8 +19,10 @@ regd_users.post("/login", (req, res) => {
 
   const accessToken = jwt.sign({ username }, "access", { expiresIn: "1h" });
   req.session.authorization = { accessToken, username };
-  return res.json({ message: "User successfully logged in" });
-});
+  return res.json({ message: "Login successful" });
+}
+
+regd_users.post("/login", loginUser);
 
 regd_users.put("/auth/review/:isbn", (req, res) => {
   const book = books[req.params.isbn];
@@ -50,9 +52,11 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
   }
 
   delete book.reviews[username];
-  return res.json({ message: "Review deleted successfully" });
+  return res.json({ message: `Review for ISBN ${req.params.isbn} deleted.` });
 });
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
+
+module.exports.loginUser = loginUser;

@@ -1,13 +1,14 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const session = require("express-session");
-const customerRoutes = require("./router/auth_users.js").authenticated;
+const authRoutes = require("./router/auth_users.js");
+const customerRoutes = authRoutes.authenticated;
 const generalRoutes = require("./router/general.js").general;
 
 const app = express();
 app.use(express.json());
 
-app.use("/customer", session({
+app.use(session({
   secret: "fingerprint_customer",
   resave: false,
   saveUninitialized: false
@@ -27,6 +28,7 @@ app.use("/customer/auth", (req, res, next) => {
   }
 });
 
+app.post("/login", authRoutes.loginUser);
 app.use("/customer", customerRoutes);
 app.use("/", generalRoutes);
 
